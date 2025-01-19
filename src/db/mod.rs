@@ -11,20 +11,14 @@ impl Database {
         Ok(Self { pool })
     }
 
+    //noinspection ALL
     pub async fn create_article(&self, article: &Article) -> Result<Article, sqlx::Error> {
         sqlx::query_as!(
             Article,
-            r#"
-            INSERT INTO articles (title, summary, content, author_id)
-            VALUES ($1, $2, $3, $4)
-            RETURNING *
-            "#,
+            "INSERT INTO articles (title, summary, content, author_id) VALUES ($1, $2, $3, $4) RETURNING *",
             article.title,
             article.summary,
             article.content,
-            article.author_id
-        )
-        .fetch_one(&self.pool)
-        .await
+            article.author_id)
     }
 }
