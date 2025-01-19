@@ -4,43 +4,38 @@ mod db;
 mod error;
 mod models;
 mod services;
-mod utils;
+mod enums;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::Router;
 use config::Config;
-use error::AppError;
-use sqlx::PgPool;
+use crate::enums::AppError;
+use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
     config: Arc<Config>,
-    db: PgPool,
-    redis: redis::Client,
+    db: sqlx::PgPool,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
     let config = Config::load()?;
-    let db = PgPool::connect(&config.database_url).await?;
-    let redis = redis::Client::open(config.redis_url.as_str())?;
 
-    let state = AppState {
-        config: Arc::new(config),
-        db,
-        redis,
-    };
+    // Combine database initialization directly in main
+    let db = PgPoolOptions::new()
+        .connect(&config.database_url)
+        .await
+        .map_err(AppError::from)?;
 
     let app = Router::new()
         .nest("/api", api::routes())
-        .with_state(state);
+        .with_state(AppState {
+            config: Arc::new(config),
+            db,
+        });
 
-    axum::Server::bind(&"0.0.0.0:3000".parse()?)
-        .serve(app.into_make_service())
-        .await?;
-
-    Ok(())
+    // Simplified server startup
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    Ok(axum::serve(listener, app).await.unwrap())
 }
