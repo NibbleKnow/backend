@@ -1,13 +1,20 @@
-use serde::{Dserialize, Serialize};
-use sqlx::FromRow;
-use time::OffsetDateTime;
+use uuid::Uuid;
 
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug)]
 pub struct User {
-    pub id: uuid,
+    pub id: Uuid,
     pub username: String,
     pub email: String,
     pub password_hash: String,
-    pub created_at: OffsetDateTime,
+    pub created_at: u64,
+}
+
+
+#[derive(Debug)]
+pub struct CreateUser {
+    pub username: String,
+    pub email: String,
+    pub password_hash: String,
+    pub created_at: u64,
 }

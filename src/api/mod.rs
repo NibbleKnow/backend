@@ -1,10 +1,13 @@
-pub mod articles;
-pub mod auth;
-pub mod users;
+pub mod article;
+pub mod user;
+
+
+use axum::Router;
+use crate::AppState;
+
 
 pub fn routes() -> Router<AppState> {
     Router::new()
-        .merge(auth::routes())
-        .merge(users::routes())
-        .merge(articles::routes())
+        .merge(user::routes())
+        .merge(article::routes())
 }
