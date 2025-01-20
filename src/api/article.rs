@@ -24,12 +24,29 @@ async fn create_article(
     State(state): State<AppState>,
     Json(input): Json<CreateArticle>,
 ) -> Result<StatusCode, AppError> {
-    let _new_article = create_new_article(input);
+    let new_article = create_new_article(input);
+    let article = sqlx::query_as!(
+        Article,
+        "INSERT INTO articles (title, summary, content, author_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        new_article.title,
+        new_article.summary,
+        new_article.content,
+        new_article.author_id,
+        new_article.created_at,
+        new_article.updated_at
+    )
+    .fetch_one(&state.db)
+    .await
+    .map_err(AppError::from)?;
     Ok(StatusCode::CREATED)
 }
 
-async fn get_article(State(_state): State<AppState>) -> Result<Json<Article>, AppError> {
-    todo!("Implement fetching an article by ID")
+async fn get_article(State(state): State<AppState>, axum::extract::Path(id): axum::extract::Path<Uuid>) -> Result<Json<Article>, AppError> {
+    let article = sqlx::query_as!(Article, "SELECT * FROM articles WHERE id = $1", id)
+        .fetch_one(&state.db)
+        .await
+        .map_err(AppError::from)?;
+    Ok(Json(article))
 }
 
 // Helper function to create a new article
@@ -46,7 +63,11 @@ fn create_new_article(input: CreateArticle) -> Article {
 }
 
 async fn fetch_articles(state: &AppState, _filter: Option<String>) -> Result<Vec<Article>, AppError> {
-    Ok(Vec::new())
+    let articles = sqlx::query_as!(Article, "SELECT * FROM articles")
+        .fetch_all(&state.db)
+        .await
+        .map_err(AppError::from)?;
+    Ok(articles)
 }
 
 fn current_timestamp() -> OffsetDateTime {
