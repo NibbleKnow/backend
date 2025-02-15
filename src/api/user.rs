@@ -10,26 +10,11 @@ use uuid::Uuid;
 use crate::{models::User, utils::current_timestamp, AppState};
 use crate::enums::AppError;
 
-// Constants for mock data
-const MOCK_EMAIL: &str = "mockemail@email.com";
-const MOCK_USERNAME: &str = "mockuser";
-
 pub fn user_routes() -> Router<AppState> {
     Router::new()
         .route("/users", get(list_users))
         .route("/users", post(create_user))
         .route("/users/:id", get(get_user_by_id))
-}
-
-// Extracted function: encapsulates user creation logic
-fn create_mock_user() -> User {
-    User {
-        id: Uuid::new_v4(),
-        email: MOCK_EMAIL.to_string(),
-        password_hash: Uuid::new_v4().as_hyphenated().to_string(),
-        username: MOCK_USERNAME.to_string(),
-        created_at: current_timestamp(),
-    }
 }
 
 async fn list_users(State(state): State<AppState>) -> Result<Json<Vec<User>>, AppError> {

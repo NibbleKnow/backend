@@ -6,8 +6,8 @@ pub struct Config {
     pub database_url: String,
     pub redis_url: String,
     pub jwt_secret: String,
-    pub wikipedia_api_base_url: String, // New field for Wikipedia API base URL
-    pub fandom_api_base_url: String, // New field for Fandom API base URL
+    pub wikipedia_api_base_url: String,
+    pub fandom_api_base_url: String,
 }
 
 impl Config {
@@ -20,9 +20,9 @@ impl Config {
             jwt_secret: env::var("JWT_SECRET")
                 .map_err(|_| AppError::Config("JWT_SECRET not set".into()))?,
             wikipedia_api_base_url: env::var("WIKIPEDIA_API_BASE_URL")
-                .map_err(|_| AppError::Config("WIKIPEDIA_API_BASE_URL not set".into()))?, // Load Wikipedia API base URL
+                .map_err(|_| AppError::Config("WIKIPEDIA_API_BASE_URL not set".into()))?,
             fandom_api_base_url: env::var("FANDOM_API_BASE_URL")
-                .map_err(|_| AppError::Config("FANDOM_API_BASE_URL not set".into()))?, // Load Fandom API base URL
+                .map_err(|_| AppError::Config("FANDOM_API_BASE_URL not set".into()))?,
         })
     }
 }
