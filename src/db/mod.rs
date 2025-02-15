@@ -49,4 +49,14 @@ impl Database {
             .fetch_one(&self.pool)
             .await
     }
+
+    pub async fn fetch_article_content(&self, title: &str) -> Result<Article, sqlx::Error> {
+        sqlx::query_as!(
+            Article,
+            "SELECT * FROM articles WHERE title = $1",
+            title
+        )
+        .fetch_one(&self.pool)
+        .await
+    }
 }

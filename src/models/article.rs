@@ -1,6 +1,6 @@
-use serde::{Deserialize, Searialize};
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use time::OffsetDatetime;
+use time::OffsetDateTime;
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct Article {
@@ -11,4 +11,5 @@ pub struct Article {
     pub author_id: uuid,
     pub created_at: OffsetDateTime,
     pub updated_at: OffsetDateTime,
+    pub source: String, // New field for the source of the article content
 }

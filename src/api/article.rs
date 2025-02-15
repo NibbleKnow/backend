@@ -10,12 +10,14 @@ use redis::AsyncCommands; // Import Redis commands
 // Predefined route constants for easier modification and reusability
 const ROUTE_ARTICLES: &str = "/articles";
 const ROUTE_ARTICLE_BY_ID: &str = "/articles/:id";
+const ROUTE_FETCH_ARTICLE: &str = "/fetch_article"; // New route for fetching article content
 
 pub fn article_routes() -> Router<AppState> {
     Router::new()
         .route(ROUTE_ARTICLES, get(list_articles))
         .route(ROUTE_ARTICLE_BY_ID, get(get_article))
         .route(ROUTE_ARTICLES, post(create_article))
+        .route(ROUTE_FETCH_ARTICLE, get(fetch_article)) // Add the new route
 }
 
 async fn list_articles(State(state): State<AppState>) -> Result<Json<Vec<Article>>, AppError> {
@@ -35,6 +37,13 @@ async fn create_article(
 
 async fn get_article(State(_state): State<AppState>) -> Result<Json<Article>, AppError> {
     todo!("Implement fetching an article by ID")
+}
+
+// New function to fetch article content from Wikipedia and Fandom APIs
+async fn fetch_article(State(state): State<AppState>, Json(input): Json<FetchArticleRequest>) -> Result<Json<FetchArticleResponse>, AppError> {
+    let content = fetch_article_content(&input.title, &input.source).await?;
+    let response = FetchArticleResponse { content };
+    Ok(Json(response))
 }
 
 // Helper function to create a new article
@@ -81,4 +90,16 @@ mod tests {
         assert!(result.is_ok());
         assert!(result.unwrap().contains("Rust is a multi-paradigm"));
     }
+}
+
+// Structs for the new fetch_article function
+#[derive(Deserialize)]
+struct FetchArticleRequest {
+    title: String,
+    source: String,
+}
+
+#[derive(Serialize)]
+struct FetchArticleResponse {
+    content: String,
 }

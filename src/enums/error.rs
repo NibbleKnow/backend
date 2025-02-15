@@ -16,4 +16,7 @@ pub enum AppError {
 
     #[error("Bad request: {0}")]
     BadRequest(String),
+
+    #[error("API error: {0}")]
+    ApiError(String),
 }
