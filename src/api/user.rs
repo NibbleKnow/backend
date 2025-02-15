@@ -40,10 +40,12 @@ async fn list_users(State(state): State<AppState>) -> Result<Json<Vec<User>>, Ap
     Ok(Json(users))
 }
 
-async fn create_user(State(state): State<AppState>, Json(payload): Json<CreateUser>) -> Result<Json<User>, AppError> {
+
+async fn create_user(State(state): State<AppState>, Json(payload): Json<User>) -> Result<Json<User>, AppError> {
     let user = sqlx::query_as!(
         User,
-        "INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, $4) RETURNING *",
+        "INSERT INTO users (id, username, email, password_hash, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        Uuid::new_v4(),
         payload.username,
         payload.email,
         payload.password_hash,

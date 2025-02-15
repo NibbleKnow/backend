@@ -11,4 +11,5 @@ pub struct Article {
     pub author_id: uuid::Uuid,
     pub created_at: OffsetDateTime,
     pub updated_at: OffsetDateTime,
+    pub source: String, // New field for the source of the article content
 }
