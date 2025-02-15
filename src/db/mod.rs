@@ -24,11 +24,13 @@ impl Database {
         .await
     }
 
+
     pub async fn create_user(&self, user: &User) -> Result<User, sqlx::Error> {
         sqlx::query_as!(
             User,
             "INSERT INTO users (id, username, email, password_hash, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING *",
             user.id,
+
             user.username,
             user.email,
             user.password_hash,
@@ -55,6 +57,7 @@ impl Database {
             Article,
             "SELECT * FROM articles WHERE title = $1",
             title
+
         )
         .fetch_one(&self.pool)
         .await

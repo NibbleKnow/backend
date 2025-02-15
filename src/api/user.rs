@@ -40,6 +40,7 @@ async fn list_users(State(state): State<AppState>) -> Result<Json<Vec<User>>, Ap
     Ok(Json(users))
 }
 
+
 async fn create_user(State(state): State<AppState>, Json(payload): Json<User>) -> Result<Json<User>, AppError> {
     let user = sqlx::query_as!(
         User,

@@ -35,8 +35,12 @@ async fn create_article(
     Ok(StatusCode::CREATED)
 }
 
-async fn get_article(State(_state): State<AppState>) -> Result<Json<Article>, AppError> {
-    todo!("Implement fetching an article by ID")
+async fn get_article(State(state): State<AppState>, axum::extract::Path(id): axum::extract::Path<Uuid>) -> Result<Json<Article>, AppError> {
+    let article = sqlx::query_as!(Article, "SELECT * FROM articles WHERE id = $1", id)
+        .fetch_one(&state.db)
+        .await
+        .map_err(AppError::from)?;
+    Ok(Json(article))
 }
 
 // New function to fetch article content from Wikipedia and Fandom APIs
@@ -60,7 +64,11 @@ fn create_new_article(input: CreateArticle, content: String) -> Article {
 }
 
 async fn fetch_articles(state: &AppState, _filter: Option<String>) -> Result<Vec<Article>, AppError> {
-    Ok(Vec::new())
+    let articles = sqlx::query_as!(Article, "SELECT * FROM articles")
+        .fetch_all(&state.db)
+        .await
+        .map_err(AppError::from)?;
+    Ok(articles)
 }
 
 fn current_timestamp() -> OffsetDateTime {
